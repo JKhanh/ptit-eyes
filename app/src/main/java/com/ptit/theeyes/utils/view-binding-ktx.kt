@@ -1,4 +1,4 @@
-package com.ptit.theeyes
+package com.ptit.theeyes.utils
 
 import android.os.Looper
 import android.view.LayoutInflater

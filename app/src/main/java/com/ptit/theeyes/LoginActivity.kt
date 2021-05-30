@@ -2,7 +2,6 @@ package com.ptit.theeyes
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -11,6 +10,8 @@ import com.firebase.ui.auth.IdpResponse
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.ptit.theeyes.databinding.ActivityLoginBinding
+import com.ptit.theeyes.utils.viewBinding
+import timber.log.Timber
 
 class LoginActivity : AppCompatActivity() {
     private val binding by viewBinding(ActivityLoginBinding::inflate)
@@ -18,7 +19,6 @@ class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val auth = FirebaseAuth.getInstance()
-        AuthUI.getInstance().signOut(this)
         if(auth.currentUser != null){
             goToMainActivity()
         } else{
@@ -53,9 +53,9 @@ class LoginActivity : AppCompatActivity() {
                 Toast.makeText(this, user?.email, Toast.LENGTH_LONG).show()
                 goToMainActivity()
             } else{
-                if(response != null){
+                if(response != null) {
                     Toast.makeText(this, response.error?.message, Toast.LENGTH_LONG).show()
-                    Log.e("Login", response.error.toString())
+                    Timber.e(response.error.toString())
                 }
                 binding.loadingProgress.visibility = View.GONE
                 binding.buttonRetry.visibility = View.VISIBLE

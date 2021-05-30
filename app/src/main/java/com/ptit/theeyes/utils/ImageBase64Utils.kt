@@ -9,7 +9,7 @@ fun Bitmap.toBase64(): String{
     val baos = ByteArrayOutputStream()
     this.compress(Bitmap.CompressFormat.JPEG, 100, baos)
     val byteArray = baos.toByteArray()
-    return Base64.encodeToString(byteArray, Base64.DEFAULT)
+    return Base64.encodeToString(byteArray, Base64.NO_WRAP)
 }
 
 fun String.base64ToImage(): Bitmap{

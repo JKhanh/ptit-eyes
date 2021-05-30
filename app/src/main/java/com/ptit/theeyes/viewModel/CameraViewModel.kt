@@ -1,7 +1,6 @@
 package com.ptit.theeyes.viewModel
 
 import android.content.Context
-import android.util.Log
 import android.util.Size
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
@@ -12,15 +11,16 @@ import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import com.google.common.util.concurrent.ListenableFuture
+import com.ptit.theeyes.view.CameraFragmentDirections
+import timber.log.Timber
 
-class CameraViewModel: ViewModel() {
+class CameraViewModel: BaseViewModel() {
     lateinit var imageCapture: ImageCapture
     private lateinit var cameraProviderFuture: ListenableFuture<ProcessCameraProvider>
     private lateinit var cameraProvider: ProcessCameraProvider
     private lateinit var preview: Preview
-    lateinit var camera: Camera
+    private lateinit var camera: Camera
     private val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
     val flashMode = MutableLiveData(ImageCapture.FLASH_MODE_OFF)
 
@@ -65,7 +65,7 @@ class CameraViewModel: ViewModel() {
                 imageCapture
             )
         } catch(exc: Exception) {
-            Log.e("View Model", "Use case binding failed", exc)
+            Timber.e(exc, "Use case binding failed")
         }
     }
 
@@ -88,4 +88,7 @@ class CameraViewModel: ViewModel() {
             bindCamera(lifecycleOwner)
         }
     }
+
+    fun navigateToPreview(imageUri: String) =
+        navigate(CameraFragmentDirections.actionCameraFragmentToPreviewFragment(imageUri))
 }
