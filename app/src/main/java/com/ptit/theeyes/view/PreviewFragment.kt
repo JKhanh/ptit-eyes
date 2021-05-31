@@ -10,15 +10,16 @@ import androidx.core.net.toUri
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
 import com.ptit.theeyes.databinding.FragmentPreviewBinding
+import com.ptit.theeyes.model.DetectModel
 import com.ptit.theeyes.viewModel.BaseViewModel
 import com.ptit.theeyes.viewModel.DetectViewModel
-import org.koin.android.viewmodel.ext.android.viewModel
+import org.koin.android.viewmodel.ext.android.sharedViewModel
 import timber.log.Timber
 
 class PreviewFragment: BaseFragment() {
     private var _binding: FragmentPreviewBinding? = null
     private val binding: FragmentPreviewBinding get() = _binding!!
-    private val viewModel: DetectViewModel by viewModel()
+    private val viewModel: DetectViewModel by sharedViewModel()
 
     private val args: PreviewFragmentArgs by navArgs()
     private lateinit var imageUri: String
@@ -35,6 +36,7 @@ class PreviewFragment: BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+//        viewModel.getHistory()
         Glide.with(this)
             .load(imageUri.toUri())
             .into(binding.image)
@@ -52,6 +54,8 @@ class PreviewFragment: BaseFragment() {
                             val text = labelObj["description"]
                             val entityId = labelObj["mid"]
                             val confidence = labelObj["score"]
+                            val detectModel = DetectModel(text.asString, entityId.asString, confidence.asString)
+                            viewModel.writeData(detectModel)
                             result += arrayListOf(text, entityId, confidence).joinToString(separator = "\n")
                             result += "\n"
                         }
