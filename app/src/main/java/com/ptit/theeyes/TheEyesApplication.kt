@@ -1,6 +1,8 @@
 package com.ptit.theeyes
 
 import android.app.Application
+import com.airbnb.lottie.Lottie
+import com.airbnb.lottie.LottieConfig
 import com.ptit.theeyes.di.viewModelModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
@@ -11,6 +13,7 @@ class TheEyesApplication: Application() {
         super.onCreate()
         initKoin()
         initTimber()
+        initLottie()
     }
 
     private fun initKoin() {
@@ -28,5 +31,13 @@ class TheEyesApplication: Application() {
         if(BuildConfig.DEBUG){
             Timber.plant(Timber.DebugTree())
         }
+    }
+
+    private fun initLottie(){
+        Lottie.initialize(
+            LottieConfig.Builder()
+                .setEnableSystraceMarkers(true)
+                .build()
+        )
     }
 }
