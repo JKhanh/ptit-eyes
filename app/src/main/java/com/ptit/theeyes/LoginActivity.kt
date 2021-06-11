@@ -19,6 +19,7 @@ class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val auth = FirebaseAuth.getInstance()
+        auth.signOut()
         if(auth.currentUser != null){
             goToMainActivity()
         } else{

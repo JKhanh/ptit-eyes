@@ -29,7 +29,7 @@ import timber.log.Timber
 
 class DetectViewModel(
     private val dispatchers: AppDispatchers,
-    private val context: Context
+    context: Context
 ): BaseViewModel() {
     lateinit var bitmap: Bitmap
     private val functions: FirebaseFunctions = Firebase.functions
