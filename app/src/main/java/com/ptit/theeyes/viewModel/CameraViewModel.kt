@@ -20,7 +20,7 @@ class CameraViewModel: BaseViewModel() {
     private lateinit var cameraProviderFuture: ListenableFuture<ProcessCameraProvider>
     private lateinit var cameraProvider: ProcessCameraProvider
     private lateinit var preview: Preview
-    private lateinit var camera: Camera
+    lateinit var camera: Camera
     private val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
     val flashMode = MutableLiveData(ImageCapture.FLASH_MODE_OFF)
 

@@ -1,14 +1,14 @@
 package com.ptit.theeyes.view
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.Toast
+import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.core.app.ActivityCompat
@@ -46,15 +46,12 @@ class CameraFragment: BaseFragment() {
         return binding.root
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         requireActivity().window.statusBarColor = Color.BLACK
 
-        if(isPermissionGranted()){
-            viewModel.startCamera(binding.preview, requireContext(), viewLifecycleOwner)
-        } else {
-            requestPermission()
-        }
+        checkPermission()
 
         outputDirectory = requireActivity().getMediaDirectory(resources.getString(R.string.origin_folder))
 
@@ -67,6 +64,41 @@ class CameraFragment: BaseFragment() {
         binding.buttonFlash.setOnClickListener {
             viewModel.changeFlash(this)
         }
+
+        binding.preview.setOnTouchListener { _, event ->
+            getZoomListener().onTouchEvent(event)
+            when(event.action){
+                 MotionEvent.ACTION_UP -> {
+                     val factory = binding.preview.meteringPointFactory
+                     val point = factory.createPoint(event.x, event.y)
+                     val action = FocusMeteringAction.Builder(point).build()
+                     viewModel.camera.cameraControl.startFocusAndMetering(action)
+                 }
+            }
+
+            true
+        }
+    }
+
+    private fun checkPermission() {
+        if(isPermissionGranted()){
+            viewModel.startCamera(binding.preview, requireContext(), viewLifecycleOwner)
+        } else {
+            requestPermission()
+        }
+    }
+
+    private fun getZoomListener(): ScaleGestureDetector{
+        val listener = object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
+            override fun onScale(detector: ScaleGestureDetector): Boolean {
+                val currentZoomRatio = viewModel.camera.cameraInfo.zoomState.value?.zoomRatio ?: 0f
+                val delta = detector.scaleFactor
+                viewModel.camera.cameraControl.setZoomRatio(currentZoomRatio * delta)
+
+                return true
+            }
+        }
+        return ScaleGestureDetector(requireContext(), listener)
     }
 
     override fun getViewModel(): BaseViewModel = viewModel
@@ -85,7 +117,7 @@ class CameraFragment: BaseFragment() {
             object : ImageCapture.OnImageSavedCallback {
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
                     val savedUri = Uri.fromFile(photoFile)
-                    goToTranslateActivity(savedUri)
+                    goToPreview(savedUri)
                 }
 
                 override fun onError(exc: ImageCaptureException) {
@@ -96,7 +128,7 @@ class CameraFragment: BaseFragment() {
         )
     }
 
-    private fun goToTranslateActivity(savedUri: Uri?) {
+    private fun goToPreview(savedUri: Uri?) {
         viewModel.navigateToPreview(savedUri.toString())
     }
 
@@ -120,10 +152,10 @@ class CameraFragment: BaseFragment() {
     ) {
         if(requestCode == REQUEST_CODE_PERMISSIONS){
             if(isPermissionGranted()){
-                viewModel.startCamera(binding.preview, requireContext(), this)
+                viewModel.startCamera(binding.preview, requireContext(), viewLifecycleOwner)
             } else {
                 Toast.makeText(requireContext(),
-                    "Translator need to have Camera permission to perform this feature",
+                    "The Eyes need to have Camera permission to perform this feature",
                     Toast.LENGTH_LONG).show()
             }
         }
